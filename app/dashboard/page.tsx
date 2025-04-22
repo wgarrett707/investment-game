@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const [investmentAmount, setInvestmentAmount] = useState<string>('')
   const [selectedStartup, setSelectedStartup] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -75,7 +76,15 @@ export default function Dashboard() {
     if (session?.user) {
       fetchData()
     }
-  }, [session])
+  }, [session, refreshKey])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRefreshKey(prev => prev + 1)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const handleInvestment = async (e: React.FormEvent) => {
     e.preventDefault()
