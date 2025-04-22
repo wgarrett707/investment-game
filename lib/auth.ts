@@ -41,35 +41,43 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.error('Missing credentials')
+            return null
           }
-        })
 
-        if (!user || !user?.password) {
-          throw new Error('Invalid credentials')
-        }
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email
+            }
+          })
 
-        const isCorrectPassword = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
+          if (!user || !user?.password) {
+            console.error('User not found or no password')
+            throw new Error('Invalid credentials')
+          }
 
-        if (!isCorrectPassword) {
-          throw new Error('Invalid credentials')
-        }
+          const isCorrectPassword = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          teamId: user.teamId,
+          if (!isCorrectPassword) {
+            console.error('Invalid password')
+            throw new Error('Invalid credentials')
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            teamId: user.teamId,
+          }
+        } catch (error) {
+          console.error('Auth error:', error)
+          throw error
         }
       }
     })
@@ -103,5 +111,6 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }
-  }
+  },
+  debug: process.env.NODE_ENV === 'development'
 } 
