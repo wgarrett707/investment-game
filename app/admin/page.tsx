@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import useSWR from 'swr'
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 interface Startup {
   id: string
@@ -19,6 +22,15 @@ interface Team {
   balance: number
 }
 
+interface InvestmentWithTeam {
+  id: string
+  amount: number
+  teamId: string
+  startupId: string
+  team: Team
+  startup: Startup
+}
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -32,6 +44,10 @@ export default function AdminDashboard() {
     pitch: '',
     multiplier: 2.0,
   })
+
+  const { data: startupsData, isLoading: startupsLoading } = useSWR<Startup[]>('/api/admin/startups', fetcher)
+  const { data: investments, isLoading: investmentsLoading } = useSWR<InvestmentWithTeam[]>('/api/admin/investments', fetcher)
+  const { data: teamsData, isLoading: teamsLoading } = useSWR<Team[]>('/api/admin/teams', fetcher)
 
   useEffect(() => {
     if (status === 'unauthenticated') {

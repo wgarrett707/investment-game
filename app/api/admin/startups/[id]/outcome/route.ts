@@ -1,77 +1,63 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
-import { authOptions } from '../../../../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 import { Investment, Team } from '@prisma/client'
 
 interface InvestmentWithTeam extends Investment {
   team: Team
-  startup: {
-    multiplier?: number
-  }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await getServerSession(authOptions)
+const FIXED_MULTIPLIER = 2.0
 
-  if (!session || session.user.role !== 'ADMIN') {
-    return new NextResponse(
-      JSON.stringify({ error: 'Unauthorized' }),
-      { status: 401 }
-    )
-  }
-
+export async function PUT(request: Request) {
   try {
-    const { outcome } = await request.json()
+    // Check authentication
+    const session = await getServerSession(authOptions)
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
+    // Get startup ID from URL
+    const id = request.url.split('/').pop()
+    if (!id) {
+      return NextResponse.json({ error: 'Missing startup ID' }, { status: 400 })
+    }
+
+    // Get outcome from request body
+    const { outcome } = await request.json()
     if (!outcome || !['SUCCESS', 'FAILURE'].includes(outcome)) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Invalid outcome' }),
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid outcome' }, { status: 400 })
     }
 
     // Get all investments for this startup
     const investments = await prisma.investment.findMany({
       where: { 
-        startupId: params.id,
+        startupId: id,
         startup: {
           outcome: 'PENDING'
         }
       },
       include: {
-        team: true,
-        startup: true
+        team: true
       }
-    }) as any[]
-
-    // Add multiplier field to each investment's startup if it doesn't exist
-    const investmentsWithMultiplier = investments.map(investment => ({
-      ...investment,
-      startup: {
-        ...investment.startup,
-        multiplier: investment.startup.multiplier || 2.0
-      }
-    }))
+    })
 
     // Update startup outcome and handle payouts in a transaction
     const [startup] = await prisma.$transaction([
       // Update startup outcome
       prisma.startup.update({
-        where: { id: params.id },
+        where: { id },
         data: { outcome }
       }),
       // Update team balances for successful investments
       ...(outcome === 'SUCCESS' 
-        ? investmentsWithMultiplier.map((investment) => 
+        ? investments.map((investment) => 
             prisma.team.update({
               where: { id: investment.teamId },
               data: {
                 balance: {
-                  increment: investment.amount * investment.startup.multiplier
+                  increment: investment.amount * FIXED_MULTIPLIER
                 }
               }
             })
@@ -82,15 +68,15 @@ export async function PUT(
 
     return NextResponse.json({ 
       startup,
-      payouts: outcome === 'SUCCESS' ? investmentsWithMultiplier.map((i) => ({
+      payouts: outcome === 'SUCCESS' ? investments.map((i) => ({
         teamId: i.teamId,
-        amount: i.amount * i.startup.multiplier
+        amount: i.amount * FIXED_MULTIPLIER
       })) : []
     })
   } catch (error) {
     console.error('Error updating startup outcome:', error)
-    return new NextResponse(
-      JSON.stringify({ error: 'Failed to update startup outcome' }),
+    return NextResponse.json(
+      { error: 'Failed to update startup outcome' },
       { status: 500 }
     )
   }

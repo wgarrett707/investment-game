@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 interface Team {
@@ -14,28 +13,23 @@ interface Team {
   }
 }
 
-export default function Leaderboard() {
-  const { data: session, status } = useSession()
+export default function LeaderboardPage() {
   const router = useRouter()
   const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-    }
-  }, [status, router])
-
-  useEffect(() => {
     const fetchTeams = async () => {
       try {
         const response = await fetch('/api/leaderboard')
-        if (!response.ok) throw new Error('Failed to fetch teams')
+        if (!response.ok) {
+          throw new Error('Failed to fetch leaderboard data')
+        }
         const data = await response.json()
         setTeams(data.teams)
-      } catch (error) {
-        setError('Failed to load leaderboard')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load leaderboard')
       } finally {
         setLoading(false)
       }
@@ -45,19 +39,11 @@ export default function Leaderboard() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    )
+    return <div>Loading...</div>
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-red-500">{error}</div>
-      </div>
-    )
+    return <div className="text-red-500">{error}</div>
   }
 
   return (

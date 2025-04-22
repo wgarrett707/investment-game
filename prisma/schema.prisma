@@ -41,7 +41,6 @@ model Startup {
   description   String
   pitch         String
   outcome       Outcome?  @default(PENDING)
-  multiplier    Float     @default(2.0)
   investments   Investment[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

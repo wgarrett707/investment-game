@@ -229,7 +229,7 @@ export default function Dashboard() {
                             : 'text-[#f87171]'
                         }`}>
                           {investment.startup.outcome === 'SUCCESS' 
-                            ? `Profit: +$${(investment.amount * (investment.startup.multiplier || 2.0)).toLocaleString()} (${investment.startup.multiplier || 2.0}x)`
+                            ? `Profit: +$${(investment.amount * 2.0).toLocaleString()} (2.0x)`
                             : `Loss: -$${investment.amount.toLocaleString()}`
                           }
                         </p>

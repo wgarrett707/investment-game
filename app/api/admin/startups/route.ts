@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
-import { authOptions } from '../../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { name, description, pitch, multiplier } = await request.json()
+    const { name, description, pitch } = await request.json()
 
     if (!name || !description || !pitch) {
       return new NextResponse(
@@ -58,8 +58,7 @@ export async function POST(request: Request) {
       data: {
         name,
         description,
-        pitch,
-        multiplier: multiplier || 2.0
+        pitch
       }
     })
 

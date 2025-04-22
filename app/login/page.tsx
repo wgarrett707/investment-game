@@ -27,34 +27,40 @@ export default function Login() {
       })
 
       if (result?.error) {
-        setError('Invalid email or password')
-      } else {
-        // Check if user is admin and redirect accordingly
-        const response = await fetch('/api/auth/session')
-        const session = await response.json()
-        
-        if (session?.user?.role === 'ADMIN') {
-          router.push('/admin')
-        } else {
-          router.push('/dashboard')
-        }
-        router.refresh()
+        setError(result.error)
+        return
       }
-    } catch (error) {
-      setError('An error occurred. Please try again.')
+
+      // Check if user is admin and redirect accordingly
+      const response = await fetch('/api/auth/session')
+      const session = await response.json()
+      
+      if (session?.user?.role === 'ADMIN') {
+        router.push('/admin')
+      } else {
+        router.push('/dashboard')
+      }
+      router.refresh()
+    } catch (err) {
+      setError('Failed to sign in')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#042f2e]">
+      <div className="max-w-md w-full space-y-8 p-8 bg-[#0a2618]/80 rounded-lg shadow-md backdrop-blur-sm border border-[#10b981]/20">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-[#34d399]">
+          <h2 className="text-center text-3xl font-extrabold text-[#34d399]">
             Sign in to your account
           </h2>
         </div>
+        {error && (
+          <div className="bg-red-100/10 border border-red-400 text-red-400 px-4 py-3 rounded relative">
+            {error}
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -85,10 +91,6 @@ export default function Login() {
             </div>
           </div>
 
-          {error && (
-            <div className="text-[#f87171] text-sm text-center">{error}</div>
-          )}
-
           <div>
             <button
               type="submit"
@@ -104,7 +106,7 @@ export default function Login() {
               href="/register"
               className="font-medium text-[#34d399] hover:text-[#a7f3d0]"
             >
-              Don't have an account? Register
+              Don&apos;t have an account? Register
             </Link>
           </div>
         </form>
