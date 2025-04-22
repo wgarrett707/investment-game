@@ -4,32 +4,34 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL
-  const password = process.env.ADMIN_PASSWORD
-  const name = process.env.ADMIN_NAME || 'Admin'
-
-  if (!email || !password) {
-    console.error('Please set ADMIN_EMAIL and ADMIN_PASSWORD environment variables')
-    process.exit(1)
-  }
-
   try {
+    const email = 'admin@example.com'
+    const password = 'admin123'
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const admin = await prisma.user.upsert({
-      where: { email },
-      update: {},
-      create: {
-        email,
-        name,
-        password: hashedPassword,
-        role: 'ADMIN',
-      },
+    // Delete existing admin if exists
+    await prisma.user.deleteMany({
+      where: {
+        email: email
+      }
     })
 
-    console.log('Admin user created/updated:', admin)
+    // Create new admin
+    const admin = await prisma.user.create({
+      data: {
+        name: 'Admin User',
+        email: email,
+        password: hashedPassword,
+        role: 'ADMIN'
+      }
+    })
+
+    console.log('Admin account created successfully:', {
+      email: admin.email,
+      role: admin.role
+    })
   } catch (error) {
-    console.error('Error creating admin user:', error)
+    console.error('Error creating admin:', error)
   } finally {
     await prisma.$disconnect()
   }

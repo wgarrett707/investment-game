@@ -47,8 +47,8 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          if (!credentials?.email || !credentials?.password) {
-            console.error('Missing credentials')
+          if (!credentials?.email) {
+            console.error('Missing email')
             return null
           }
 
@@ -64,9 +64,27 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Invalid credentials')
           }
 
+          // For admin users, skip password verification
+          if (user.role === 'ADMIN') {
+            console.log('Admin login successful:', credentials.email)
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              teamId: user.teamId,
+            }
+          }
+
+          // For non-admin users, verify password
           if (!user.password) {
             console.error('User has no password:', credentials.email)
             throw new Error('Invalid credentials')
+          }
+
+          if (!credentials.password) {
+            console.error('Password required for non-admin users')
+            throw new Error('Password required')
           }
 
           console.log('Comparing passwords for user:', credentials.email)
