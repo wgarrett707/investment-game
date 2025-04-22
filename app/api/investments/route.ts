@@ -4,14 +4,17 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions)
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    const session = await getServerSession(authOptions)
+    console.log('Session:', session)
+
+    if (!session?.user) {
+      console.error('No session or user found')
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { startupId, amount } = await request.json()
+    console.log('Investment request:', { startupId, amount, userId: session.user.id })
 
     if (!startupId || !amount || amount <= 0) {
       return NextResponse.json(
@@ -39,6 +42,7 @@ export async function POST(request: Request) {
     })
 
     if (!team) {
+      console.error('Team not found for user:', session.user.id)
       return NextResponse.json(
         { error: 'Team not found' },
         { status: 404 }
@@ -50,6 +54,7 @@ export async function POST(request: Request) {
     })
 
     if (!startup) {
+      console.error('Startup not found:', startupId)
       return NextResponse.json(
         { error: 'Startup not found' },
         { status: 404 }
@@ -91,6 +96,12 @@ export async function POST(request: Request) {
         },
       }),
     ])
+
+    console.log('Investment created successfully:', {
+      investmentId: investment.id,
+      teamId: team.id,
+      amount
+    })
 
     return NextResponse.json({
       investment,

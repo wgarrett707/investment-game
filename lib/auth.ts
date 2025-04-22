@@ -9,11 +9,13 @@ import bcrypt from 'bcryptjs'
 // Define custom types for the user and session
 declare module 'next-auth' {
   interface User {
+    id: string
     role: string
     teamId?: string | null
   }
   interface Session {
     user: User & {
+      id: string
       role: string
       teamId?: string | null
     }
@@ -22,6 +24,7 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT {
+    id: string
     role: string
     teamId?: string | null
   }
@@ -126,6 +129,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         return {
           ...token,
+          id: user.id,
           role: user.role,
           teamId: user.teamId,
         }
@@ -137,6 +141,7 @@ export const authOptions: NextAuthOptions = {
         ...session,
         user: {
           ...session.user,
+          id: token.id,
           role: token.role,
           teamId: token.teamId,
         }
