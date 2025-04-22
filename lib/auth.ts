@@ -27,6 +27,11 @@ declare module 'next-auth/jwt' {
   }
 }
 
+// Ensure we have a secret
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('Please provide process.env.NEXTAUTH_SECRET')
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
@@ -112,5 +117,5 @@ export const authOptions: NextAuthOptions = {
       }
     }
   },
-  debug: process.env.NODE_ENV === 'development'
+  debug: true // Enable debug mode to see more detailed errors
 } 
