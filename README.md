@@ -1,36 +1,169 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Investment Game
 
-## Getting Started
+A platform for simulating startup investing in a team-based environment. Teams can invest in real historical AI startups and learn from their outcomes.
 
-First, run the development server:
+## Features
 
+- Team-based registration and authentication
+- Real-time investment tracking
+- Admin dashboard for managing startups and outcomes
+- Leaderboard showing team rankings
+- Historical investment tracking
+- Real startup case studies
+
+## Prerequisites
+
+- Node.js 18+ and npm
+- PostgreSQL database
+
+## Setup
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd investment-game
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+Create a `.env` file in the root directory with the following variables:
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/investment_game"
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
+ADMIN_EMAIL="admin@example.com"
+ADMIN_PASSWORD="your-admin-password"
+ADMIN_NAME="Admin User"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Set up the database:
+```bash
+npx prisma migrate dev
+```
 
-## Learn More
+5. Create the admin user:
+```bash
+npm run create-admin
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Start the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Usage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Admin
 
-## Deploy on Vercel
+1. Log in with the admin credentials
+2. Access the admin dashboard at `/admin`
+3. Create new startups with their details
+4. Manage investment rounds and outcomes
+5. View team performances
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Teams
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Register a new team with team members
+2. Log in to access the team dashboard
+3. View available startups for investment
+4. Make investment decisions
+5. Track investment performance
+6. View the leaderboard
+
+## Game Flow
+
+1. Admin creates a new startup with details
+2. Teams are presented with the startup pitch
+3. Teams have a limited time to make investment decisions
+4. Admin reveals the startup outcome
+5. Teams' balances are updated based on their investments
+6. Process repeats for the next startup
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+# Seed or Skip
+
+A modern investment simulation game where users can practice investment decisions in a risk-free environment.
+
+## Deployment Guide
+
+### Prerequisites
+
+- A Vercel account for deployment
+- A PostgreSQL database (recommended: Vercel Postgres, Supabase, or Railway)
+- Google OAuth credentials (if using Google authentication)
+
+### Environment Variables
+
+Copy the `.env.example` file and set up the following environment variables in your Vercel project:
+
+- `DATABASE_URL`: Your PostgreSQL connection string
+- `NEXTAUTH_SECRET`: A secure random string (generate using `openssl rand -base64 32`)
+- `NEXTAUTH_URL`: Your production URL (e.g., https://your-domain.vercel.app)
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`: Initial admin user credentials
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: If using Google authentication
+
+### Deployment Steps
+
+1. **Database Setup**
+   - Create a new PostgreSQL database
+   - Update the `DATABASE_URL` in your environment variables
+   - Run database migrations:
+     ```bash
+     npx prisma db push
+     ```
+
+2. **Vercel Deployment**
+   - Push your code to GitHub
+   - Import your repository in Vercel
+   - Configure environment variables in Vercel's project settings
+   - Deploy your project
+
+3. **Post-Deployment**
+   - Verify that the application is running correctly
+   - Check that authentication is working
+   - Confirm database connections
+   - Test admin functionality
+
+### Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+### Database Management
+
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Push schema changes to database
+npx prisma db push
+
+# Open Prisma Studio
+npx prisma studio
+```
