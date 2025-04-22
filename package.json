@@ -7,8 +7,7 @@
     "build": "next build --no-lint",
     "start": "next dev --turbopack",
     "lint": "next lint",
-    "create-admin": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts",
-    "update-multiplier": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/update-multiplier.ts"
+    "create-admin": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/create-admin.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",

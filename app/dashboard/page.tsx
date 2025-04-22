@@ -10,7 +10,6 @@ interface Startup {
   description: string
   pitch: string
   outcome: 'PENDING' | 'SUCCESS' | 'FAILURE'
-  multiplier: number
 }
 
 interface Investment {
@@ -20,7 +19,6 @@ interface Investment {
     name: string
     description: string
     outcome: 'PENDING' | 'SUCCESS' | 'FAILURE'
-    multiplier: number
   }
   createdAt: string
 }
